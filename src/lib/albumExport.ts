@@ -120,7 +120,7 @@ function buildAlbumHtml(
   </main>
   <div class="viewer" role="dialog" aria-modal="true" aria-label="תצוגת מדיה">
     <button class="viewer-close" type="button" aria-label="סגירת תצוגה">×</button>
-    <button class="viewer-nav viewer-next" type="button" aria-label="המדיה הבאה">›</button>
+    <button class="viewer-nav viewer-next" type="button" aria-label="המדיה הבאה">‹</button>
     <figure class="viewer-figure">
       <div class="viewer-media-wrap"></div>
       <figcaption class="viewer-caption">
@@ -128,7 +128,7 @@ function buildAlbumHtml(
         <p></p>
       </figcaption>
     </figure>
-    <button class="viewer-nav viewer-prev" type="button" aria-label="המדיה הקודמת">‹</button>
+    <button class="viewer-nav viewer-prev" type="button" aria-label="המדיה הקודמת">›</button>
   </div>
   <script>
     const albumItems = ${serializedItems};

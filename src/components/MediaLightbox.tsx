@@ -38,7 +38,7 @@ export default function MediaLightbox({ items, activeIndex, displayOptions, onCl
         onClick={() => onMove((activeIndex + 1) % items.length)}
         aria-label={t("nextMedia")}
       >
-        ›
+        ‹
       </button>
       <figure className="lightbox-figure">
         <div className="lightbox-media-wrap">
@@ -68,7 +68,7 @@ export default function MediaLightbox({ items, activeIndex, displayOptions, onCl
         onClick={() => onMove((activeIndex - 1 + items.length) % items.length)}
         aria-label={t("previousMedia")}
       >
-        ‹
+        ›
       </button>
     </div>
   );
