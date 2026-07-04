@@ -170,7 +170,8 @@ button {
 }
 
 .privacy-card,
-.help-card {
+.help-card,
+.structure-card {
   border: 1px solid #acd2b8;
   border-radius: 8px;
   background: var(--soft);
@@ -178,7 +179,8 @@ button {
 }
 
 .privacy-card strong,
-.help-card strong {
+.help-card strong,
+.structure-card strong {
   display: block;
   margin-bottom: 8px;
   color: var(--accent-dark);
@@ -191,6 +193,12 @@ button {
   padding-inline-start: 20px;
   color: #35443a;
   line-height: 1.7;
+}
+
+.structure-card p {
+  margin: 0;
+  color: #35443a;
+  line-height: 1.65;
 }
 
 .status-line {

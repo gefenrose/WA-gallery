@@ -60,6 +60,10 @@ export default function ZipImporter({ status, isLoading, error, onFile }: ZipImp
               ))}
           </ol>
         </aside>
+        <aside className="structure-card">
+          <strong>{t("folderStructureTitle")}</strong>
+          <p>{t("folderStructureText")}</p>
+        </aside>
         <aside className="privacy-card">
           <strong>{t("privacyTitle")}</strong>
           <ul>
