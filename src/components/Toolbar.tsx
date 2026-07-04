@@ -7,7 +7,6 @@ type ToolbarProps = {
   senders: string[];
   onFilterModeChange: (mode: FilterMode) => void;
   onSenderFilterChange: (sender: string) => void;
-  onPrint: () => void;
   onExport: () => void;
   canExport: boolean;
   isExporting: boolean;
@@ -19,13 +18,12 @@ export default function Toolbar({
   senders,
   onFilterModeChange,
   onSenderFilterChange,
-  onPrint,
   onExport,
   canExport,
   isExporting
 }: ToolbarProps) {
   return (
-    <section className="toolbar print-hidden">
+    <section className="toolbar">
       <div className="segmented" role="group" aria-label="סינון מדיה">
         <button className={filterMode === "all" ? "active" : ""} onClick={() => onFilterModeChange("all")}>
           {t("allPhotos")}
@@ -56,9 +54,6 @@ export default function Toolbar({
       </label>
       <button className="export-button" onClick={onExport} disabled={!canExport || isExporting}>
         {isExporting ? t("exportingAlbum") : t("exportAlbum")}
-      </button>
-      <button className="print-button" onClick={onPrint}>
-        {t("print")}
       </button>
     </section>
   );

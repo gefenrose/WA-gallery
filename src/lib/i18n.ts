@@ -12,7 +12,6 @@ export const translations = {
   missingCaptions: "חסר כיתוב",
   sender: "שולח/ת",
   allSenders: "כל השולחים",
-  print: "הדפסה / שמירה כ-PDF",
   exportAlbum: "ייצוא אלבום אישי",
   exportingAlbum: "מייצא אלבום אישי...",
   exportedAlbum: "האלבום האישי מוכן להורדה",

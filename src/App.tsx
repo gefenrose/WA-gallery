@@ -88,7 +88,7 @@ export default function App() {
 
   return (
     <main className="app-shell" dir="rtl" lang="he">
-      <header className="app-header print-hidden">
+      <header className="app-header">
         <div className="brand-mark" aria-hidden="true">
           P
         </div>
@@ -103,7 +103,6 @@ export default function App() {
         senders={senders}
         onFilterModeChange={setFilterMode}
         onSenderFilterChange={setSenderFilter}
-        onPrint={() => window.print()}
         onExport={handleExportAlbum}
         canExport={items.length > 0}
         isExporting={isExporting}

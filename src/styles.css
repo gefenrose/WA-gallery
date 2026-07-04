@@ -126,7 +126,6 @@ button {
 }
 
 .choose-button,
-.print-button,
 .export-button {
   min-height: 46px;
   border: 0;
@@ -139,7 +138,6 @@ button {
 }
 
 .choose-button:hover,
-.print-button:hover,
 .export-button:hover {
   background: var(--accent-dark);
 }
@@ -261,8 +259,6 @@ button {
 }
 
 .album-card {
-  break-inside: avoid;
-  page-break-inside: avoid;
   display: grid;
   gap: 10px;
   border: 1px solid var(--line);
@@ -484,10 +480,6 @@ button {
     height: 112px;
   }
 
-  .print-button {
-    width: 100%;
-  }
-
   .export-button {
     width: 100%;
   }
@@ -538,37 +530,5 @@ button {
   .segmented button {
     flex: 1;
     padding: 0 10px;
-  }
-}
-
-@media print {
-  :root,
-  body,
-  .app-shell {
-    background: white;
-  }
-
-  .print-hidden {
-    display: none !important;
-  }
-
-  .app-shell {
-    padding: 0;
-  }
-
-  .album-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12mm;
-  }
-
-  .album-card {
-    box-shadow: none;
-    border-color: #cccccc;
-  }
-
-  .caption-editor {
-    border: 0;
-    padding: 0;
-    resize: none;
   }
 }

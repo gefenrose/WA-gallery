@@ -19,7 +19,7 @@ export default function ZipImporter({ status, isLoading, error, onFile }: ZipImp
 
   return (
     <section
-      className={`importer print-hidden ${dragging ? "dragging" : ""}`}
+      className={`importer ${dragging ? "dragging" : ""}`}
       onDragOver={(event) => {
         event.preventDefault();
         setDragging(true);
