@@ -10,8 +10,10 @@ type ToolbarProps = {
   onSelectedSendersChange: (senders: string[]) => void;
   onDisplayOptionsChange: (options: DisplayOptions) => void;
   onExport: () => void;
+  onExportWord: () => void;
+  onExportPowerPoint: () => void;
   canExport: boolean;
-  isExporting: boolean;
+  activeExport?: "html" | "word" | "powerpoint";
 };
 
 export default function Toolbar({
@@ -23,8 +25,10 @@ export default function Toolbar({
   onSelectedSendersChange,
   onDisplayOptionsChange,
   onExport,
+  onExportWord,
+  onExportPowerPoint,
   canExport,
-  isExporting
+  activeExport
 }: ToolbarProps) {
   function toggleSender(sender: string) {
     if (selectedSenders.includes(sender)) {
@@ -102,9 +106,17 @@ export default function Toolbar({
           </label>
         </div>
       </fieldset>
-      <button className="export-button" onClick={onExport} disabled={!canExport || isExporting}>
-        {isExporting ? t("exportingAlbum") : t("exportAlbum")}
-      </button>
+      <div className="export-actions">
+        <button className="export-button" onClick={onExport} disabled={!canExport || Boolean(activeExport)}>
+          {activeExport === "html" ? t("exportingAlbum") : t("exportAlbum")}
+        </button>
+        <button className="export-button" onClick={onExportWord} disabled={!canExport || Boolean(activeExport)}>
+          {activeExport === "word" ? t("exportingWord") : t("exportWord")}
+        </button>
+        <button className="export-button" onClick={onExportPowerPoint} disabled={!canExport || Boolean(activeExport)}>
+          {activeExport === "powerpoint" ? t("exportingPowerPoint") : t("exportPowerPoint")}
+        </button>
+      </div>
     </section>
   );
 }

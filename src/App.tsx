@@ -6,6 +6,7 @@ import ZipImporter from "./components/ZipImporter";
 import { exportPersonalAlbumZip, inferAlbumTitle } from "./lib/albumExport";
 import { buildAlbumItems } from "./lib/buildAlbumItems";
 import { t } from "./lib/i18n";
+import { exportPowerPointAlbum, exportWordAlbum } from "./lib/officeExport";
 import { parseWhatsAppChat } from "./lib/parseWhatsAppChat";
 import { loadWhatsAppZip, revokeMediaUrls } from "./lib/zipUtils";
 import type { AlbumItem, DisplayOptions, FilterMode, MediaFile } from "./types";
@@ -26,7 +27,7 @@ export default function App() {
   const [status, setStatus] = useState(t("ready"));
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [activeExport, setActiveExport] = useState<"html" | "word" | "powerpoint" | undefined>();
   const [albumTitle, setAlbumTitle] = useState(t("appName"));
   const [activeItemId, setActiveItemId] = useState<string | undefined>();
 
@@ -82,13 +83,37 @@ export default function App() {
 
   async function handleExportAlbum() {
     if (items.length === 0) return;
-    setIsExporting(true);
+    setActiveExport("html");
     setStatus(t("exportingAlbum"));
     try {
       await exportPersonalAlbumZip(albumTitle, items, displayOptions);
       setStatus(t("exportedAlbum"));
     } finally {
-      setIsExporting(false);
+      setActiveExport(undefined);
+    }
+  }
+
+  async function handleExportWord() {
+    if (items.length === 0) return;
+    setActiveExport("word");
+    setStatus(t("exportingWord"));
+    try {
+      await exportWordAlbum(albumTitle, items, displayOptions);
+      setStatus(t("exportedWord"));
+    } finally {
+      setActiveExport(undefined);
+    }
+  }
+
+  async function handleExportPowerPoint() {
+    if (items.length === 0) return;
+    setActiveExport("powerpoint");
+    setStatus(t("exportingPowerPoint"));
+    try {
+      await exportPowerPointAlbum(albumTitle, items, displayOptions);
+      setStatus(t("exportedPowerPoint"));
+    } finally {
+      setActiveExport(undefined);
     }
   }
 
@@ -114,8 +139,10 @@ export default function App() {
         onSelectedSendersChange={setSelectedSenders}
         onDisplayOptionsChange={setDisplayOptions}
         onExport={handleExportAlbum}
+        onExportWord={handleExportWord}
+        onExportPowerPoint={handleExportPowerPoint}
         canExport={items.length > 0}
-        isExporting={isExporting}
+        activeExport={activeExport}
       />
 
       <AlbumPreview

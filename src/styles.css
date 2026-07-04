@@ -304,6 +304,15 @@ button {
   font-weight: 750;
 }
 
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-self: stretch;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 .album-preview {
   max-width: 1440px;
   margin: 0 auto;
