@@ -1,15 +1,22 @@
-import type { AlbumItem } from "../types";
+import type { AlbumItem, DisplayOptions } from "../types";
 import AlbumCard from "./AlbumCard";
 import { t } from "../lib/i18n";
 
 type AlbumPreviewProps = {
   items: AlbumItem[];
   totalCount: number;
+  displayOptions: DisplayOptions;
   onCaptionChange: (id: string, caption: string) => void;
   onOpenItem: (id: string) => void;
 };
 
-export default function AlbumPreview({ items, totalCount, onCaptionChange, onOpenItem }: AlbumPreviewProps) {
+export default function AlbumPreview({
+  items,
+  totalCount,
+  displayOptions,
+  onCaptionChange,
+  onOpenItem
+}: AlbumPreviewProps) {
   return (
     <section className="album-preview" aria-live="polite">
       <div className="album-count">
@@ -20,7 +27,13 @@ export default function AlbumPreview({ items, totalCount, onCaptionChange, onOpe
       ) : (
         <div className="album-grid">
           {items.map((item) => (
-            <AlbumCard key={item.id} item={item} onCaptionChange={onCaptionChange} onOpen={() => onOpenItem(item.id)} />
+            <AlbumCard
+              key={item.id}
+              item={item}
+              displayOptions={displayOptions}
+              onCaptionChange={onCaptionChange}
+              onOpen={() => onOpenItem(item.id)}
+            />
           ))}
         </div>
       )}

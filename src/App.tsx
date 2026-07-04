@@ -8,13 +8,21 @@ import { buildAlbumItems } from "./lib/buildAlbumItems";
 import { t } from "./lib/i18n";
 import { parseWhatsAppChat } from "./lib/parseWhatsAppChat";
 import { loadWhatsAppZip, revokeMediaUrls } from "./lib/zipUtils";
-import type { AlbumItem, FilterMode, MediaFile } from "./types";
+import type { AlbumItem, DisplayOptions, FilterMode, MediaFile } from "./types";
+
+const defaultDisplayOptions: DisplayOptions = {
+  date: true,
+  time: true,
+  sender: true,
+  text: true
+};
 
 export default function App() {
   const [items, setItems] = useState<AlbumItem[]>([]);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
-  const [senderFilter, setSenderFilter] = useState("");
+  const [selectedSenders, setSelectedSenders] = useState<string[]>([]);
+  const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(defaultDisplayOptions);
   const [status, setStatus] = useState(t("ready"));
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -28,12 +36,12 @@ export default function App() {
   );
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      if (senderFilter && item.sender !== senderFilter) return false;
+      if (selectedSenders.length > 0 && (!item.sender || !selectedSenders.includes(item.sender))) return false;
       if (filterMode === "withCaptions") return item.caption.trim().length > 0;
       if (filterMode === "missingCaptions") return item.caption.trim().length === 0;
       return true;
     });
-  }, [filterMode, items, senderFilter]);
+  }, [filterMode, items, selectedSenders]);
 
   async function handleFile(file: File) {
     setIsLoading(true);
@@ -56,7 +64,7 @@ export default function App() {
       setItems(buildAlbumItems(messages, result.mediaFiles));
       setAlbumTitle(inferAlbumTitle(file.name));
       setFilterMode("all");
-      setSenderFilter("");
+      setSelectedSenders([]);
       setStatus(`${t("parsed")} (${result.chatFilename})`);
     } catch (loadError) {
       setMediaFiles([]);
@@ -77,7 +85,7 @@ export default function App() {
     setIsExporting(true);
     setStatus(t("exportingAlbum"));
     try {
-      await exportPersonalAlbumZip(albumTitle, items);
+      await exportPersonalAlbumZip(albumTitle, items, displayOptions);
       setStatus(t("exportedAlbum"));
     } finally {
       setIsExporting(false);
@@ -99,10 +107,12 @@ export default function App() {
 
       <Toolbar
         filterMode={filterMode}
-        senderFilter={senderFilter}
+        selectedSenders={selectedSenders}
         senders={senders}
+        displayOptions={displayOptions}
         onFilterModeChange={setFilterMode}
-        onSenderFilterChange={setSenderFilter}
+        onSelectedSendersChange={setSelectedSenders}
+        onDisplayOptionsChange={setDisplayOptions}
         onExport={handleExportAlbum}
         canExport={items.length > 0}
         isExporting={isExporting}
@@ -111,6 +121,7 @@ export default function App() {
       <AlbumPreview
         items={filteredItems}
         totalCount={items.length}
+        displayOptions={displayOptions}
         onCaptionChange={handleCaptionChange}
         onOpenItem={setActiveItemId}
       />
@@ -119,6 +130,7 @@ export default function App() {
         <MediaLightbox
           items={items}
           activeIndex={activeIndex}
+          displayOptions={displayOptions}
           onClose={() => setActiveItemId(undefined)}
           onMove={(nextIndex) => setActiveItemId(items[nextIndex]?.id)}
         />

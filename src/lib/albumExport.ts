@@ -1,7 +1,7 @@
 import JSZip from "jszip";
-import type { AlbumItem } from "../types";
+import type { AlbumItem, DisplayOptions } from "../types";
 
-export async function exportPersonalAlbumZip(albumTitle: string, items: AlbumItem[]) {
+export async function exportPersonalAlbumZip(albumTitle: string, items: AlbumItem[], displayOptions: DisplayOptions) {
   const zip = new JSZip();
   const mediaFolder = zip.folder("media");
   const filenameById = new Map<string, string>();
@@ -12,7 +12,7 @@ export async function exportPersonalAlbumZip(albumTitle: string, items: AlbumIte
     mediaFolder?.file(mediaName, item.media.blob);
   });
 
-  zip.file("index.html", buildAlbumHtml(albumTitle, items, filenameById));
+  zip.file("index.html", buildAlbumHtml(albumTitle, items, filenameById, displayOptions));
   const blob = await zip.generateAsync({ type: "blob" });
   downloadBlob(blob, `${safeDownloadName(albumTitle)}.zip`);
 }
@@ -29,7 +29,12 @@ export function inferAlbumTitle(zipFilename: string) {
   ).trim();
 }
 
-function buildAlbumHtml(albumTitle: string, items: AlbumItem[], filenameById: Map<string, string>) {
+function buildAlbumHtml(
+  albumTitle: string,
+  items: AlbumItem[],
+  filenameById: Map<string, string>,
+  displayOptions: DisplayOptions
+) {
   const cards = items
     .map((item, index) => {
       const src = filenameById.get(item.id) ?? "";
@@ -41,9 +46,9 @@ function buildAlbumHtml(albumTitle: string, items: AlbumItem[], filenameById: Ma
         <button class="media-button" type="button" data-index="${index}" aria-label="פתיחת מדיה">
           ${media}
         </button>
-        <div class="meta"><span>${escapeHtml(item.dateRaw || "-")}</span><span>${escapeHtml(item.timeRaw || "-")}</span></div>
-        <div class="sender">${escapeHtml(item.sender || "-")}</div>
-        <p class="caption">${escapeHtml(item.caption || "")}</p>
+        ${buildExportMeta(item, displayOptions)}
+        ${displayOptions.sender ? `<div class="sender">${escapeHtml(item.sender || "-")}</div>` : ""}
+        ${displayOptions.text ? `<p class="caption">${escapeHtml(item.caption || "")}</p>` : ""}
       </article>`;
     })
     .join("\n");
@@ -55,7 +60,8 @@ function buildAlbumHtml(albumTitle: string, items: AlbumItem[], filenameById: Ma
       caption: item.caption,
       dateRaw: item.dateRaw,
       timeRaw: item.timeRaw,
-      sender: item.sender
+      sender: item.sender,
+      displayOptions
     }))
   ).replace(/</g, "\\u003c");
 
@@ -147,12 +153,19 @@ function buildAlbumHtml(albumTitle: string, items: AlbumItem[], filenameById: Ma
       }
       mediaWrap.append(media);
       meta.textContent = "";
-      [item.dateRaw || "-", item.timeRaw || "-", item.sender || "-", String(activeIndex + 1) + " / " + albumItems.length].forEach((value) => {
+      const display = item.displayOptions;
+      const metaValues = [];
+      if (display.date) metaValues.push(item.dateRaw || "-");
+      if (display.time) metaValues.push(item.timeRaw || "-");
+      if (display.sender) metaValues.push(item.sender || "-");
+      metaValues.push(String(activeIndex + 1) + " / " + albumItems.length);
+      metaValues.forEach((value) => {
         const span = document.createElement("span");
         span.textContent = value;
         meta.append(span);
       });
-      caption.textContent = item.caption || "אין כיתוב";
+      caption.textContent = display.text ? item.caption || "אין כיתוב" : "";
+      caption.hidden = !display.text;
       viewer.classList.add("open");
     }
     document.querySelectorAll(".media-button").forEach((button) => {
@@ -170,6 +183,15 @@ function buildAlbumHtml(albumTitle: string, items: AlbumItem[], filenameById: Ma
   </script>
 </body>
 </html>`;
+}
+
+function buildExportMeta(item: AlbumItem, displayOptions: DisplayOptions) {
+  const values = [
+    displayOptions.date ? item.dateRaw || "-" : "",
+    displayOptions.time ? item.timeRaw || "-" : ""
+  ].filter(Boolean);
+  if (values.length === 0) return "";
+  return `<div class="meta">${values.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}</div>`;
 }
 
 function downloadBlob(blob: Blob, filename: string) {

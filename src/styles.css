@@ -210,7 +210,7 @@ button {
 
 .toolbar {
   display: grid;
-  grid-template-columns: 1fr minmax(190px, 260px) auto auto;
+  grid-template-columns: minmax(220px, 1fr) minmax(210px, 280px) minmax(220px, 280px) auto;
   gap: 18px;
   align-items: end;
   max-width: 1440px;
@@ -233,20 +233,75 @@ button {
   border-radius: 7px;
 }
 
-.sender-filter {
+.checkbox-panel {
   display: grid;
   gap: 6px;
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 10px 12px;
+  background: #fff;
   color: #2f3b33;
   font-weight: 700;
 }
 
-.sender-filter select {
-  min-height: 42px;
+.checkbox-panel legend {
+  padding: 0 4px;
+  color: #2f3b33;
+}
+
+.checkbox-list {
+  display: grid;
+  gap: 8px;
+  max-height: 148px;
+  overflow: auto;
+  padding-inline-end: 2px;
+}
+
+.checkbox-list.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #233027;
+  font-size: 0.94rem;
+  font-weight: 650;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+}
+
+.checkbox-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.muted-control-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.clear-filter-button {
+  justify-self: start;
+  min-height: 32px;
   border: 1px solid var(--line);
   border-radius: 7px;
-  background: white;
-  padding: 0 12px;
-  color: #233027;
+  background: var(--soft);
+  color: var(--accent-dark);
+  padding: 0 10px;
+  font-size: 0.9rem;
+  font-weight: 750;
 }
 
 .album-preview {

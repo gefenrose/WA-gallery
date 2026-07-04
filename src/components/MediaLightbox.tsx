@@ -1,16 +1,18 @@
 import { useEffect } from "react";
-import type { AlbumItem } from "../types";
+import type { AlbumItem, DisplayOptions } from "../types";
 import { t } from "../lib/i18n";
 
 type MediaLightboxProps = {
   items: AlbumItem[];
   activeIndex: number;
+  displayOptions: DisplayOptions;
   onClose: () => void;
   onMove: (index: number) => void;
 };
 
-export default function MediaLightbox({ items, activeIndex, onClose, onMove }: MediaLightboxProps) {
+export default function MediaLightbox({ items, activeIndex, displayOptions, onClose, onMove }: MediaLightboxProps) {
   const item = items[activeIndex];
+  const showCaptionPanel = displayOptions.date || displayOptions.time || displayOptions.sender || displayOptions.text;
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -46,17 +48,19 @@ export default function MediaLightbox({ items, activeIndex, onClose, onMove }: M
             <img className="lightbox-media" src={item.media.url} alt={item.caption || item.media.filename} />
           )}
         </div>
-        <figcaption className="lightbox-caption">
-          <div className="lightbox-meta">
-            <span>{item.dateRaw || "-"}</span>
-            <span>{item.timeRaw || "-"}</span>
-            <span>{item.sender || "-"}</span>
-            <span>
-              {activeIndex + 1} / {items.length}
-            </span>
-          </div>
-          <p>{item.caption || t("noCaption")}</p>
-        </figcaption>
+        {showCaptionPanel ? (
+          <figcaption className="lightbox-caption">
+            <div className="lightbox-meta">
+              {displayOptions.date ? <span>{item.dateRaw || "-"}</span> : null}
+              {displayOptions.time ? <span>{item.timeRaw || "-"}</span> : null}
+              {displayOptions.sender ? <span>{item.sender || "-"}</span> : null}
+              <span>
+                {activeIndex + 1} / {items.length}
+              </span>
+            </div>
+            {displayOptions.text ? <p>{item.caption || t("noCaption")}</p> : null}
+          </figcaption>
+        ) : null}
       </figure>
       <button
         className="lightbox-nav lightbox-prev"

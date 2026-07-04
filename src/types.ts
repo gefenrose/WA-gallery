@@ -28,3 +28,10 @@ export type AlbumItem = {
 };
 
 export type FilterMode = "all" | "withCaptions" | "missingCaptions";
+
+export type DisplayOptions = {
+  date: boolean;
+  time: boolean;
+  sender: boolean;
+  text: boolean;
+};

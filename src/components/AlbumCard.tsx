@@ -1,15 +1,17 @@
-import type { AlbumItem } from "../types";
+import type { AlbumItem, DisplayOptions } from "../types";
 import CaptionEditor from "./CaptionEditor";
 import { t } from "../lib/i18n";
 
 type AlbumCardProps = {
   item: AlbumItem;
+  displayOptions: DisplayOptions;
   onCaptionChange: (id: string, caption: string) => void;
   onOpen: () => void;
 };
 
-export default function AlbumCard({ item, onCaptionChange, onOpen }: AlbumCardProps) {
+export default function AlbumCard({ item, displayOptions, onCaptionChange, onOpen }: AlbumCardProps) {
   const missingCaption = item.caption.trim().length === 0;
+  const showMeta = displayOptions.date || displayOptions.time;
 
   return (
     <article className={`album-card ${missingCaption ? "album-card-missing" : ""}`}>
@@ -21,23 +23,29 @@ export default function AlbumCard({ item, onCaptionChange, onOpen }: AlbumCardPr
         )}
         <span className="media-kind">{item.media.type === "video" ? t("mediaKindVideo") : t("mediaKindImage")}</span>
       </button>
-      <div className="album-meta">
-        <span>{item.dateRaw || "-"}</span>
-        <span>{item.timeRaw || "-"}</span>
-      </div>
-      <div className="sender-line">{item.sender || "-"}</div>
-      <label className="caption-label" htmlFor={`caption-${item.id}`}>
-        {t("caption")}
-      </label>
-      <CaptionEditor
-        id={`caption-${item.id}`}
-        value={item.caption}
-        placeholder={t("addCaption")}
-        onChange={(caption) => onCaptionChange(item.id, caption)}
-      />
-      <div className={`confidence confidence-${item.confidence}`}>
-        {t("confidence")}: {t(item.confidence)}
-      </div>
+      {showMeta ? (
+        <div className="album-meta">
+          {displayOptions.date ? <span>{item.dateRaw || "-"}</span> : null}
+          {displayOptions.time ? <span>{item.timeRaw || "-"}</span> : null}
+        </div>
+      ) : null}
+      {displayOptions.sender ? <div className="sender-line">{item.sender || "-"}</div> : null}
+      {displayOptions.text ? (
+        <>
+          <label className="caption-label" htmlFor={`caption-${item.id}`}>
+            {t("caption")}
+          </label>
+          <CaptionEditor
+            id={`caption-${item.id}`}
+            value={item.caption}
+            placeholder={t("addCaption")}
+            onChange={(caption) => onCaptionChange(item.id, caption)}
+          />
+          <div className={`confidence confidence-${item.confidence}`}>
+            {t("confidence")}: {t(item.confidence)}
+          </div>
+        </>
+      ) : null}
     </article>
   );
 }
