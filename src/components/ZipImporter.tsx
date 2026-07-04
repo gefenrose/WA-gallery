@@ -49,16 +49,28 @@ export default function ZipImporter({ status, isLoading, error, onFile }: ZipImp
         />
         <p className="privacy-note">{t("privacy")}</p>
       </div>
-      <aside className="privacy-card">
-        <strong>{t("privacyTitle")}</strong>
-        <ul>
-          {t("privacyBullets")
-            .split("|")
-            .map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-        </ul>
-      </aside>
+      <div className="import-sidebars">
+        <aside className="help-card">
+          <strong>{t("exportHelpTitle")}</strong>
+          <ol>
+            {t("exportHelpBullets")
+              .split("|")
+              .map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+          </ol>
+        </aside>
+        <aside className="privacy-card">
+          <strong>{t("privacyTitle")}</strong>
+          <ul>
+            {t("privacyBullets")
+              .split("|")
+              .map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+          </ul>
+        </aside>
+      </div>
       <div className={`status-line ${error ? "status-error" : ""}`}>
         <strong>{error ? error : status}</strong>
       </div>

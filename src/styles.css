@@ -164,21 +164,29 @@ button {
   margin-top: 14px;
 }
 
-.privacy-card {
+.import-sidebars {
+  display: grid;
+  gap: 12px;
+}
+
+.privacy-card,
+.help-card {
   border: 1px solid #acd2b8;
   border-radius: 8px;
   background: var(--soft);
   padding: 18px;
 }
 
-.privacy-card strong {
+.privacy-card strong,
+.help-card strong {
   display: block;
   margin-bottom: 8px;
   color: var(--accent-dark);
   font-size: 1.1rem;
 }
 
-.privacy-card ul {
+.privacy-card ul,
+.help-card ol {
   margin: 0;
   padding-inline-start: 20px;
   color: #35443a;
