@@ -1,5 +1,9 @@
 export const translations = {
   appName: "יוצר אלבומי WhatsApp",
+  appSubtitle: "הפכו ייצוא של צ׳אט WhatsApp לאלבום זיכרונות מסודר ואישי.",
+  dropZipTitle: "גררו לכאן את קובץ ה-ZIP של ייצוא ה-WhatsApp",
+  albumReady: "האלבום מוכן לעריכה",
+  chooseAnotherZip: "בחירת קובץ אחר",
   importTitle: "ייבוא קובץ ZIP מ-WhatsApp",
   importHelp: "גררו לכאן קובץ ZIP שיוצא מ-WhatsApp, או לחצו לבחירה.",
   chooseZip: "בחירת קובץ ZIP",
@@ -55,7 +59,11 @@ export const translations = {
   closeViewer: "סגירת תצוגה",
   nextMedia: "המדיה הבאה",
   previousMedia: "המדיה הקודמת",
-  noCaption: "אין כיתוב"
+  noCaption: "אין כיתוב",
+  albumPreview: "תצוגה מקדימה של האלבום",
+  reorderHint: "לשינוי הסדר, גררו פריט למיקום הרצוי",
+  dragItem: "גרירת הפריט לשינוי הסדר. אפשר גם להשתמש בחצים למעלה ולמטה",
+  drag: "גרירה"
 };
 
 export type TranslationKey = keyof typeof translations;

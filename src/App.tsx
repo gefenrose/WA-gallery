@@ -81,6 +81,21 @@ export default function App() {
     setItems((current) => current.map((item) => (item.id === id ? { ...item, caption } : item)));
   }
 
+  function handleReorder(sourceId: string, targetId: string) {
+    if (sourceId === targetId) return;
+
+    setItems((current) => {
+      const sourceIndex = current.findIndex((item) => item.id === sourceId);
+      const targetIndex = current.findIndex((item) => item.id === targetId);
+      if (sourceIndex < 0 || targetIndex < 0) return current;
+
+      const next = [...current];
+      const [movedItem] = next.splice(sourceIndex, 1);
+      next.splice(targetIndex, 0, movedItem);
+      return next;
+    });
+  }
+
   async function handleExportAlbum() {
     if (items.length === 0) return;
     setActiveExport("html");
@@ -121,37 +136,41 @@ export default function App() {
 
   return (
     <main className="app-shell" dir="rtl" lang="he">
-      <header className="app-header">
-        <div className="brand-mark" aria-hidden="true">
-          P
+      <ZipImporter
+        status={status}
+        isLoading={isLoading}
+        error={error}
+        compact={items.length > 0}
+        onFile={handleFile}
+      />
+
+      {items.length > 0 ? (
+        <div className="album-workspace">
+          <Toolbar
+            filterMode={filterMode}
+            selectedSenders={selectedSenders}
+            senders={senders}
+            displayOptions={displayOptions}
+            onFilterModeChange={setFilterMode}
+            onSelectedSendersChange={setSelectedSenders}
+            onDisplayOptionsChange={setDisplayOptions}
+            onExport={handleExportAlbum}
+            onExportWord={handleExportWord}
+            onExportPowerPoint={handleExportPowerPoint}
+            canExport
+            activeExport={activeExport}
+          />
+
+          <AlbumPreview
+            items={filteredItems}
+            totalCount={items.length}
+            displayOptions={displayOptions}
+            onCaptionChange={handleCaptionChange}
+            onOpenItem={setActiveItemId}
+            onReorder={handleReorder}
+          />
         </div>
-        <div className="brand-text">{t("appName")}</div>
-      </header>
-
-      <ZipImporter status={status} isLoading={isLoading} error={error} onFile={handleFile} />
-
-      <Toolbar
-        filterMode={filterMode}
-        selectedSenders={selectedSenders}
-        senders={senders}
-        displayOptions={displayOptions}
-        onFilterModeChange={setFilterMode}
-        onSelectedSendersChange={setSelectedSenders}
-        onDisplayOptionsChange={setDisplayOptions}
-        onExport={handleExportAlbum}
-        onExportWord={handleExportWord}
-        onExportPowerPoint={handleExportPowerPoint}
-        canExport={items.length > 0}
-        activeExport={activeExport}
-      />
-
-      <AlbumPreview
-        items={filteredItems}
-        totalCount={items.length}
-        displayOptions={displayOptions}
-        onCaptionChange={handleCaptionChange}
-        onOpenItem={setActiveItemId}
-      />
+      ) : null}
 
       {activeIndex >= 0 ? (
         <MediaLightbox

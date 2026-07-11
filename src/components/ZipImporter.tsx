@@ -5,10 +5,11 @@ type ZipImporterProps = {
   status: string;
   isLoading: boolean;
   error?: string;
+  compact?: boolean;
   onFile: (file: File) => void;
 };
 
-export default function ZipImporter({ status, isLoading, error, onFile }: ZipImporterProps) {
+export default function ZipImporter({ status, isLoading, error, compact = false, onFile }: ZipImporterProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -19,7 +20,7 @@ export default function ZipImporter({ status, isLoading, error, onFile }: ZipImp
 
   return (
     <section
-      className={`importer ${dragging ? "dragging" : ""}`}
+      className={`importer ${dragging ? "dragging" : ""} ${compact ? "importer-compact" : ""}`}
       onDragOver={(event) => {
         event.preventDefault();
         setDragging(true);
@@ -31,53 +32,52 @@ export default function ZipImporter({ status, isLoading, error, onFile }: ZipImp
         handleFiles(event.dataTransfer.files);
       }}
     >
-      <div className="zip-art" aria-hidden="true">
-        ZIP
+      {!compact ? (
+        <header className="welcome-copy">
+          <h1>{t("appName")}</h1>
+          <p>{t("appSubtitle")}</p>
+          <div className="privacy-banner">{t("privacy")}</div>
+        </header>
+      ) : null}
+
+      <div className="upload-zone">
+        <div className="zip-art" aria-hidden="true">ZIP</div>
+        <div className="import-copy">
+          <h2>{compact ? t("albumReady") : t("dropZipTitle")}</h2>
+          <p>{compact ? status : t("importHelp")}</p>
+          <button className="choose-button" onClick={() => inputRef.current?.click()} disabled={isLoading}>
+            {compact ? t("chooseAnotherZip") : t("chooseZip")}
+          </button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".zip,application/zip"
+            hidden
+            onChange={(event) => handleFiles(event.target.files)}
+          />
+        </div>
       </div>
-      <div className="import-copy">
-        <h1>{t("importTitle")}</h1>
-        <p>{t("importHelp")}</p>
-        <button className="choose-button" onClick={() => inputRef.current?.click()} disabled={isLoading}>
-          {t("chooseZip")}
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".zip,application/zip"
-          hidden
-          onChange={(event) => handleFiles(event.target.files)}
-        />
-        <p className="privacy-note">{t("privacy")}</p>
-      </div>
-      <div className="import-sidebars">
-        <aside className="help-card">
-          <strong>{t("exportHelpTitle")}</strong>
+
+      {error || isLoading ? (
+        <div className={`status-line ${error ? "status-error" : ""}`}>
+          <strong>{error || status}</strong>
+        </div>
+      ) : null}
+
+      {!compact ? (
+        <div className="instructions-card">
+          <h2>{t("exportHelpTitle")}</h2>
           <ol>
             {t("exportHelpBullets")
               .split("|")
-              .map((line) => (
-                <li key={line}>{line}</li>
-              ))}
+              .map((line) => <li key={line}>{line}</li>)}
           </ol>
-        </aside>
-        <aside className="structure-card">
-          <strong>{t("folderStructureTitle")}</strong>
-          <p>{t("folderStructureText")}</p>
-        </aside>
-        <aside className="privacy-card">
-          <strong>{t("privacyTitle")}</strong>
-          <ul>
-            {t("privacyBullets")
-              .split("|")
-              .map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-          </ul>
-        </aside>
-      </div>
-      <div className={`status-line ${error ? "status-error" : ""}`}>
-        <strong>{error ? error : status}</strong>
-      </div>
+          <div className="instructions-note">
+            <strong>{t("folderStructureTitle")}</strong>
+            <p>{t("folderStructureText")}</p>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
