@@ -29,15 +29,10 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
 
   for (const item of items) {
     const imageType = getDocxImageType(item.media.filename, item.media.blob.type);
-    children.push(
-      new Paragraph({
-        alignment: AlignmentType.RIGHT,
-        bidirectional: true,
-        children: [wordText(item.media.type === "video" ? "סרטון" : "תמונה")]
-      })
-    );
 
     if (item.media.type === "image" && imageType) {
+      const imageSize = await getImageSize(item.media.blob);
+      const fittedSize = fitWithin(imageSize.width, imageSize.height, 430, 320);
       children.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
@@ -45,7 +40,7 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
             new ImageRun({
               type: imageType,
               data: await item.media.blob.arrayBuffer(),
-              transformation: { width: 430, height: 320 },
+              transformation: fittedSize,
               altText: {
                 title: item.caption || item.media.filename,
                 description: item.media.filename,
@@ -133,13 +128,16 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
     const metadata = buildMetadataLines(item, { ...displayOptions, text: false }).join("\n");
 
     if (item.media.type === "image" && isPptImage(item.media.filename, item.media.blob.type)) {
+      const imageSize = await getImageSize(item.media.blob);
+      const fittedSize = fitWithin(imageSize.width, imageSize.height, 7.55, 6.2);
+      const imageX = 0.65 + (7.55 - fittedSize.width) / 2;
+      const imageY = 0.45 + (6.2 - fittedSize.height) / 2;
       slide.addImage({
         data: await blobToDataUrl(item.media.blob),
-        x: 0.65,
-        y: 0.45,
-        w: 7.55,
-        h: 6.2,
-        sizing: { type: "contain", x: 0.65, y: 0.45, w: 7.55, h: 6.2 }
+        x: imageX,
+        y: imageY,
+        w: fittedSize.width,
+        h: fittedSize.height
       });
     } else if (item.media.type === "video" && isPptVideo(item.media.filename, item.media.blob.type)) {
       slide.addMedia({
@@ -200,8 +198,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
       rtlMode: true
     });
 
-    if (displayOptions.text) {
-      slide.addText(item.caption || "אין כיתוב", {
+    if (displayOptions.text && item.caption.trim()) {
+      slide.addText(item.caption, {
         x: 8.55,
         y: 2.55,
         w: 4.1,
@@ -226,7 +224,7 @@ function buildMetadataLines(item: AlbumItem, displayOptions: DisplayOptions) {
   if (displayOptions.date) lines.push(`תאריך: ${item.dateRaw || "-"}`);
   if (displayOptions.time) lines.push(`שעה: ${item.timeRaw || "-"}`);
   if (displayOptions.sender) lines.push(`שולח/ת: ${item.sender || "-"}`);
-  if (displayOptions.text) lines.push(`כיתוב: ${item.caption || "אין כיתוב"}`);
+  if (displayOptions.text && item.caption.trim()) lines.push(`כיתוב: ${item.caption}`);
   return lines;
 }
 
@@ -237,6 +235,19 @@ function wordText(text: string) {
     size: WORD_FONT_SIZE,
     rightToLeft: true
   });
+}
+
+async function getImageSize(blob: Blob) {
+  const bitmap = await createImageBitmap(blob);
+  const size = { width: bitmap.width, height: bitmap.height };
+  bitmap.close();
+  return size;
+}
+
+function fitWithin(width: number, height: number, maxWidth: number, maxHeight: number) {
+  if (width <= 0 || height <= 0) return { width: maxWidth, height: maxHeight };
+  const scale = Math.min(maxWidth / width, maxHeight / height, 1);
+  return { width: width * scale, height: height * scale };
 }
 
 function getDocxImageType(filename: string, mimeType: string): DocxImageType | undefined {
