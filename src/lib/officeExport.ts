@@ -35,7 +35,7 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
       const fittedSize = fitWithin(imageSize.width, imageSize.height, 430, 320);
       children.push(
         new Paragraph({
-          alignment: AlignmentType.CENTER,
+          alignment: AlignmentType.RIGHT,
           bidirectional: true,
           children: [
             new ImageRun({
@@ -104,24 +104,32 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
   };
 
   const titleSlide = pptx.addSlide();
-  titleSlide.background = { color: "F8FBF9" };
+  titleSlide.background = { color: "FBFAF7" };
+  titleSlide.addShape(pptx.ShapeType.line, {
+    x: 4.65,
+    y: 2.55,
+    w: 4,
+    h: 0,
+    line: { color: "20854F", width: 2 }
+  });
   titleSlide.addText(albumTitle, {
-    x: 0.7,
-    y: 1.7,
-    w: 12,
-    h: 0.7,
-    align: "right",
+    x: 1.1,
+    y: 2.05,
+    w: 11.15,
+    h: 0.35,
+    align: "center",
     fontFace: WORD_FONT,
     fontSize: 12,
+    bold: true,
     color: "17201A",
     rtlMode: true
   });
   titleSlide.addText(`${items.length} פריטי מדיה`, {
-    x: 0.7,
-    y: 2.55,
-    w: 12,
-    h: 0.4,
-    align: "right",
+    x: 1.1,
+    y: 2.78,
+    w: 11.15,
+    h: 0.3,
+    align: "center",
     fontFace: WORD_FONT,
     fontSize: 12,
     color: "657168",
@@ -130,14 +138,22 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
 
   for (const item of items) {
     const slide = pptx.addSlide();
-    slide.background = { color: "FFFFFF" };
-    const metadata = buildMetadataLines(item, { ...displayOptions, text: false }).join("\n");
+    slide.background = { color: "FBFAF7" };
+    const metadataEntries = buildMetadataEntries(item, { ...displayOptions, text: false });
+
+    slide.addShape(pptx.ShapeType.line, {
+      x: 8.42,
+      y: 0.55,
+      w: 0,
+      h: 6.4,
+      line: { color: "DED9D0", width: 1 }
+    });
 
     if (item.media.type === "image" && isPptImage(item.media.filename, item.media.blob.type)) {
       const imageSize = await getImageSize(item.media.blob);
-      const fittedSize = fitWithin(imageSize.width, imageSize.height, 7.55, 6.2);
-      const imageX = 0.65 + (7.55 - fittedSize.width) / 2;
-      const imageY = 0.45 + (6.2 - fittedSize.height) / 2;
+      const fittedSize = fitWithin(imageSize.width, imageSize.height, 7.3, 6.05);
+      const imageX = 0.65 + (7.3 - fittedSize.width) / 2;
+      const imageY = 0.7 + (6.05 - fittedSize.height) / 2;
       slide.addImage({
         data: await blobToDataUrl(item.media.blob),
         x: imageX,
@@ -151,16 +167,16 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
         data: await blobToDataUrl(item.media.blob),
         extn: getExtension(item.media.filename),
         x: 0.65,
-        y: 0.45,
-        w: 7.55,
-        h: 6.2
+        y: 0.7,
+        w: 7.3,
+        h: 6.05
       });
     } else {
       slide.addShape(pptx.ShapeType.rect, {
         x: 0.65,
-        y: 0.45,
-        w: 7.55,
-        h: 6.2,
+        y: 0.7,
+        w: 7.3,
+        h: 6.05,
         fill: { color: "F5FAF7" },
         line: { color: "D9E4DC" }
       });
@@ -189,27 +205,60 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
       });
     }
 
-    slide.addText(metadata || " ", {
-      x: 8.55,
-      y: 0.7,
-      w: 4.1,
-      h: 1.6,
-      align: "right",
-      valign: "top",
-      fontFace: WORD_FONT,
-      fontSize: 12,
-      color: "314238",
-      breakLine: false,
-      fit: "shrink",
-      rtlMode: true
-    });
+    let textY = 0.8;
+    for (const entry of metadataEntries) {
+      slide.addText(
+        [
+          { text: `${entry.label}: `, options: { bold: true, color: "176A3E" } },
+          { text: entry.value, options: { color: "314238" } }
+        ],
+        {
+          x: 8.75,
+          y: textY,
+          w: 3.9,
+          h: 0.38,
+          margin: 0,
+          align: "right",
+          valign: "middle",
+          fontFace: WORD_FONT,
+          fontSize: 12,
+          rtlMode: true,
+          fit: "shrink"
+        }
+      );
+      textY += 0.52;
+    }
 
     if (displayOptions.text && item.caption.trim()) {
+      if (metadataEntries.length > 0) {
+        slide.addShape(pptx.ShapeType.line, {
+          x: 8.75,
+          y: textY + 0.06,
+          w: 3.9,
+          h: 0,
+          line: { color: "DED9D0", width: 1 }
+        });
+        textY += 0.35;
+      }
+      slide.addText("כיתוב", {
+        x: 8.75,
+        y: textY,
+        w: 3.9,
+        h: 0.3,
+        margin: 0,
+        align: "right",
+        fontFace: WORD_FONT,
+        fontSize: 12,
+        bold: true,
+        color: "176A3E",
+        rtlMode: true
+      });
       slide.addText(item.caption, {
-        x: 8.55,
-        y: 2.55,
-        w: 4.1,
-        h: 3.45,
+        x: 8.75,
+        y: textY + 0.42,
+        w: 3.9,
+        h: Math.max(1, 6.05 - textY),
+        margin: 0,
         align: "right",
         valign: "top",
         fontFace: WORD_FONT,
@@ -226,17 +275,21 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
 }
 
 function buildMetadataLines(item: AlbumItem, displayOptions: DisplayOptions) {
-  const lines: string[] = [];
-  if (displayOptions.date) lines.push(`תאריך: ${item.dateRaw || "-"}`);
-  if (displayOptions.time) lines.push(`שעה: ${item.timeRaw || "-"}`);
-  if (displayOptions.sender) lines.push(`שולח/ת: ${item.sender || "-"}`);
-  if (displayOptions.text && item.caption.trim()) lines.push(`כיתוב: ${item.caption}`);
-  return lines;
+  return buildMetadataEntries(item, displayOptions).map((entry) => `${entry.label}: ${entry.value}`);
+}
+
+function buildMetadataEntries(item: AlbumItem, displayOptions: DisplayOptions) {
+  const entries: Array<{ label: string; value: string }> = [];
+  if (displayOptions.date) entries.push({ label: "תאריך", value: item.dateRaw || "-" });
+  if (displayOptions.time) entries.push({ label: "שעה", value: item.timeRaw || "-" });
+  if (displayOptions.sender) entries.push({ label: "שולח/ת", value: item.sender || "-" });
+  if (displayOptions.text && item.caption.trim()) entries.push({ label: "כיתוב", value: item.caption });
+  return entries;
 }
 
 function wordText(text: string) {
   return new TextRun({
-    text,
+    text: `\u200F${text}`,
     font: WORD_FONT,
     size: WORD_FONT_SIZE,
     rightToLeft: true,
