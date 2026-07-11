@@ -36,6 +36,7 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
       children.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
+          bidirectional: true,
           children: [
             new ImageRun({
               type: imageType,
@@ -75,7 +76,12 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
     styles: {
       default: {
         document: {
-          run: { font: WORD_FONT, size: WORD_FONT_SIZE },
+          run: {
+            font: WORD_FONT,
+            size: WORD_FONT_SIZE,
+            rightToLeft: true,
+            language: { value: "he-IL", bidirectional: "he-IL" }
+          },
           paragraph: { alignment: AlignmentType.RIGHT }
         }
       }
@@ -233,7 +239,8 @@ function wordText(text: string) {
     text,
     font: WORD_FONT,
     size: WORD_FONT_SIZE,
-    rightToLeft: true
+    rightToLeft: true,
+    language: { value: "he-IL", bidirectional: "he-IL" }
   });
 }
 
