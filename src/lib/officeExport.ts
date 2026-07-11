@@ -1,7 +1,6 @@
 import {
   AlignmentType,
   Document,
-  HeadingLevel,
   ImageRun,
   Packer,
   Paragraph,
@@ -11,19 +10,20 @@ import pptxgen from "pptxgenjs";
 import type { AlbumItem, DisplayOptions } from "../types";
 
 type DocxImageType = "jpg" | "png" | "gif" | "bmp";
+const WORD_FONT = "Arial";
+const WORD_FONT_SIZE = 24; // docx uses half-points: 24 = 12pt
 
 export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], displayOptions: DisplayOptions) {
   const children: Paragraph[] = [
     new Paragraph({
       alignment: AlignmentType.RIGHT,
-      heading: HeadingLevel.TITLE,
       bidirectional: true,
-      children: [new TextRun(albumTitle)]
+      children: [wordText(albumTitle)]
     }),
     new Paragraph({
       alignment: AlignmentType.RIGHT,
       bidirectional: true,
-      children: [new TextRun(`${items.length} פריטי מדיה`)]
+      children: [wordText(`${items.length} פריטי מדיה`)]
     })
   ];
 
@@ -32,9 +32,8 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
     children.push(
       new Paragraph({
         alignment: AlignmentType.RIGHT,
-        heading: HeadingLevel.HEADING_2,
         bidirectional: true,
-        children: [new TextRun(item.media.type === "video" ? "סרטון" : "תמונה")]
+        children: [wordText(item.media.type === "video" ? "סרטון" : "תמונה")]
       })
     );
 
@@ -61,7 +60,7 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
         new Paragraph({
           alignment: AlignmentType.RIGHT,
           bidirectional: true,
-          children: [new TextRun(`${item.media.type === "video" ? "קובץ וידאו" : "קובץ מדיה"}: ${item.media.filename}`)]
+          children: [wordText(`${item.media.type === "video" ? "קובץ וידאו" : "קובץ מדיה"}: ${item.media.filename}`)]
         })
       );
     }
@@ -71,13 +70,21 @@ export async function exportWordAlbum(albumTitle: string, items: AlbumItem[], di
         new Paragraph({
           alignment: AlignmentType.RIGHT,
           bidirectional: true,
-          children: [new TextRun(line)]
+          children: [wordText(line)]
         })
       );
     }
   }
 
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: { font: WORD_FONT, size: WORD_FONT_SIZE },
+          paragraph: { alignment: AlignmentType.RIGHT }
+        }
+      }
+    },
     sections: [{ properties: {}, children }]
   });
   downloadBlob(await Packer.toBlob(doc), `${safeDownloadName(albumTitle)}.docx`);
@@ -91,8 +98,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
   pptx.title = albumTitle;
   pptx.company = "";
   pptx.theme = {
-    headFontFace: "Aptos",
-    bodyFontFace: "Aptos"
+    headFontFace: WORD_FONT,
+    bodyFontFace: WORD_FONT
   };
 
   const titleSlide = pptx.addSlide();
@@ -103,9 +110,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
     w: 12,
     h: 0.7,
     align: "right",
-    fontFace: "Aptos",
-    fontSize: 34,
-    bold: true,
+    fontFace: WORD_FONT,
+    fontSize: 12,
     color: "17201A",
     rtlMode: true
   });
@@ -115,7 +121,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
     w: 12,
     h: 0.4,
     align: "right",
-    fontSize: 18,
+    fontFace: WORD_FONT,
+    fontSize: 12,
     color: "657168",
     rtlMode: true
   });
@@ -123,7 +130,7 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
   for (const item of items) {
     const slide = pptx.addSlide();
     slide.background = { color: "FFFFFF" };
-    const metadata = buildMetadataLines(item, displayOptions).join("\n");
+    const metadata = buildMetadataLines(item, { ...displayOptions, text: false }).join("\n");
 
     if (item.media.type === "image" && isPptImage(item.media.filename, item.media.blob.type)) {
       slide.addImage({
@@ -159,8 +166,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
         w: 6.95,
         h: 0.5,
         align: "center",
-        bold: true,
-        fontSize: 22,
+        fontFace: WORD_FONT,
+        fontSize: 12,
         color: "176A3E",
         rtlMode: true
       });
@@ -170,9 +177,11 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
         w: 6.95,
         h: 0.5,
         align: "center",
-        fontSize: 14,
+        fontFace: WORD_FONT,
+        fontSize: 12,
         color: "657168",
-        fit: "shrink"
+        fit: "shrink",
+        rtlMode: true
       });
     }
 
@@ -183,7 +192,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
       h: 1.6,
       align: "right",
       valign: "top",
-      fontSize: 15,
+      fontFace: WORD_FONT,
+      fontSize: 12,
       color: "314238",
       breakLine: false,
       fit: "shrink",
@@ -198,7 +208,8 @@ export async function exportPowerPointAlbum(albumTitle: string, items: AlbumItem
         h: 3.45,
         align: "right",
         valign: "top",
-        fontSize: 18,
+        fontFace: WORD_FONT,
+        fontSize: 12,
         color: "17201A",
         fit: "shrink",
         rtlMode: true
@@ -217,6 +228,15 @@ function buildMetadataLines(item: AlbumItem, displayOptions: DisplayOptions) {
   if (displayOptions.sender) lines.push(`שולח/ת: ${item.sender || "-"}`);
   if (displayOptions.text) lines.push(`כיתוב: ${item.caption || "אין כיתוב"}`);
   return lines;
+}
+
+function wordText(text: string) {
+  return new TextRun({
+    text,
+    font: WORD_FONT,
+    size: WORD_FONT_SIZE,
+    rightToLeft: true
+  });
 }
 
 function getDocxImageType(filename: string, mimeType: string): DocxImageType | undefined {

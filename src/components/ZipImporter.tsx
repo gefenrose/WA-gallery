@@ -67,6 +67,7 @@ export default function ZipImporter({ status, isLoading, error, compact = false,
       {!compact ? (
         <div className="instructions-card">
           <h2>{t("exportHelpTitle")}</h2>
+          <p className="media-export-notice">{t("mediaExportNotice")}</p>
           <ol>
             {t("exportHelpBullets")
               .split("|")

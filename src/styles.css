@@ -227,6 +227,18 @@ button {
   font-size: 1.35rem;
 }
 
+.media-export-notice {
+  margin: 0 0 20px;
+  border-inline-start: 4px solid #d99a35;
+  border-radius: 8px;
+  padding: 13px 15px;
+  background: #fff8e9;
+  color: #57451f;
+  font-size: 0.96rem;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
 .instructions-card ol {
   margin: 0;
   padding-inline-start: 24px;
